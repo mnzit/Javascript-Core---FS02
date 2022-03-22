@@ -1,15 +1,24 @@
 function select(value) {
-    let selected = document.querySelector(value)
-
+    let selected = null;
+    if (value instanceof HTMLElement) {
+        selected = value;
+    } else {
+        selected = document.querySelector(value)
+    }
     return {
         data: () => selected,
         action: () => action(selected),
+        appendChild: function (func) {
+            selected.appendChild(func())
+            return this;
+        },
         css: () => css(selected)
     }
 }
 
 function css(object) {
     let style = object.style;
+
 
     return {
         border: function (value) {
@@ -28,35 +37,40 @@ function css(object) {
             style.margin = value;
             return this;
         },
-        backgroundColor: function (value){
+        backgroundColor: function (value) {
             style.backgroundColor = value;
             return this;
         },
-        height: function (value){
+        height: function (value) {
             style.height = value;
             return this;
         },
-        width: function (value){
+        width: function (value) {
             style.width = value;
             return this;
         },
-        action: () => action(object)
+        transition: function (value) {
+            style.transition = value;
+            return this;
+        },
+        select: () => select(object)
     }
 }
 
-function action(object){
+function action(object) {
     return {
-        click: function(func){  
+        click: function (func) {
             object.addEventListener('click', () => func(object))
             return this;
         },
-        mouseOver: function(func){  
+        mouseOver: function (func) {
             object.addEventListener('mouseover', () => func(object))
             return this;
         },
-        mouseLeave: function(func){  
+        mouseLeave: function (func) {
             object.addEventListener('mouseleave', () => func(object))
             return this;
-        }
+        },
+        select: () => select(object)
     }
 }
