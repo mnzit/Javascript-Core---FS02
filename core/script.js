@@ -1,59 +1,18 @@
-let target = document.getElementsByTagName("nischal")[0];
-let h1 = document.createElement('h1');
-h1.innerText = "Nabin"
-let h2 = document.createElement('anita');
-h2.innerText = "Sapana"
-target.appendChild(h1)
-target.appendChild(h2)
+select("body")
+    .css()
+        .padding("10px");
 
-action(target)
-    .click(() => {console.log("Click gariyo")})
-    .mouseOver(()=> {
-        css(target)
-            .border('1px solid red')
-            .color('red')
-            .padding('10px')
-    })
-    .mouseLeave(()=> {
-        css(target)
-            .border(null)
-            .color('black')
-            .padding('10px')
-    })
+select("div#render")
+    .css()
+        .width("20px")
+        .height("20px")
+        .color("white")
+        .backgroundColor("black")
+        .padding('10px')
+        .margin('10px')
+        .border('1px solid black')
+    .action()
+        .click((selected) => alert("Box has been clicked"))
+        .mouseOver((selected) => css(selected).color("black").backgroundColor("white"))
+        .mouseLeave((selected) => css(selected).color("white").backgroundColor("black"))
 
-
-function css(object) {
-    let style = object.style;
-
-    return {
-        border: function(value) {
-            style.border = value;
-            return this;
-        },
-        color: function(value) {
-            style.color = value;
-            return this;
-        },
-        padding: function(value) {
-            style.padding = value;
-            return this;
-        },
-    }
-}
-
-function action(object){
-    return {
-        click: function(func){  
-            object.addEventListener('click', func)
-            return this;
-        },
-        mouseOver: function(func){  
-            object.addEventListener('mouseover', func)
-            return this;
-        },
-        mouseLeave: function(func){  
-            object.addEventListener('mouseleave', func)
-            return this;
-        }
-    }
-}
