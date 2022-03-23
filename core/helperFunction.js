@@ -19,7 +19,6 @@ function select(value) {
 function css(object) {
     let style = object.style;
 
-
     return {
         border: function (value) {
             style.border = value;
@@ -53,6 +52,9 @@ function css(object) {
             style.transition = value;
             return this;
         },
+        textAlign: function(value){
+            style.textAlign = value;
+        },
         select: () => select(object)
     }
 }
@@ -72,5 +74,18 @@ function action(object) {
             return this;
         },
         select: () => select(object)
+    }
+}
+
+
+function cElement(elementName){
+    let element = document.createElement(elementName);
+    return {
+        select: () => select(element),
+        innerText: function (value) {
+            element.innerText= value
+            return this;
+        }
+
     }
 }
