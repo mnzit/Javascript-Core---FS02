@@ -10,7 +10,7 @@ let rectangleCreator = () => new cElement("div")
     .backgroundColor("black")
     .margin((counter++)+'px')
     .border('1px solid black')
-    .transition("1s all")
+    .transition("0.1s all")
 .select()
 .action()
     .click((selected) => alert("Box has been clicked"))
@@ -36,11 +36,14 @@ let button = cElement("button")
                     .click((selected) => select(rectangleCollection).appendChild(()=>rectangleCreator()))
             .select()
             .data();
-        
+
 select("#render")
     .css()
         .padding("10px")
 .select()
 .appendChild(()=>rectangleCollection)
 .appendChild(()=>button)
+
+
+
 

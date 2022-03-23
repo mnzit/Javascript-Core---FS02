@@ -1,8 +1,10 @@
 function select(value) {
     let selected = null;
     if (value instanceof HTMLElement) {
+        console.log("HTMLELement is passed")
         selected = value;
     } else {
+        console.log("Query selector called")
         selected = document.querySelector(value)
     }
     return {
@@ -65,6 +67,10 @@ function action(object) {
             object.addEventListener('click', () => func(object))
             return this;
         },
+        doubleClick: function (func) {
+            object.addEventListener('dblclick', () => func(object))
+            return this;
+        },
         mouseOver: function (func) {
             object.addEventListener('mouseover', () => func(object))
             return this;
@@ -81,11 +87,15 @@ function action(object) {
 function cElement(elementName){
     let element = document.createElement(elementName);
     return {
+        data: () => element,
         select: () => select(element),
         innerText: function (value) {
             element.innerText= value
             return this;
+        },
+        appendChild: function (func) {
+            element.appendChild(func())
+            return this;
         }
-
     }
 }
