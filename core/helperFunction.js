@@ -91,7 +91,7 @@ function action(object) {
     }
 }
 
-function cInput(type){
+function cInput(){
     let element = cElement('input').data();
     return {
         type: function(type) {
