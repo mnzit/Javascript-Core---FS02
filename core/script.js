@@ -1,48 +1,65 @@
-let counter = 10;
 
-let rectangleCreator = () => new cElement("div")
-.select()
-.css()
-    .width("40px")
-    .height("20px")
-    .color("white")
-    .padding("10px")
-    .backgroundColor("black")
-    .margin((counter++)+'px')
-    .border('1px solid black')
-    .transition("0.1s all")
-.select()
-.action()
-    .click((selected) => alert("Box has been clicked"))
-    .mouseOver((selected) => css(selected).color("black").backgroundColor("white"))
-    .mouseLeave((selected) => css(selected).color("white").backgroundColor("black"))
-.select()
-.data();
+let emailLabel = cElement("label").select().innerText("Email: ").data();
+let passwordLabel = cElement("label").select().innerText("Password: ").data();
 
-let rectangleCollection = cElement("div")
-                            .select()
-                                .css()
-                                .padding("10px")
-                                .width("10%")
-                                .backgroundColor("red")
-                                .border("1px solid yellow")
-                            .select()
-                            .data();
+let emailInputBox = cInput("text").data();
+let passwordInputBox = cInput("text").data();
 
-let button = cElement("button")
-                .innerText("Create Rectangle")
+let form = cElement("div")
+  .appendChild(() => emailLabel)
+  .appendChild(() => emailInputBox)
+  .appendChild(() => passwordLabel)
+  .appendChild(() => passwordInputBox)
+  .data();
+
+let loginButton = cElement("button")
+  .select()
+  .innerText("Login")
+  .action()
+  .click((selected) => {
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://api-universityportal.herokuapp.com/login');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    let json = {
+      emailAddress: emailInputBox.value,
+      password: passwordInputBox.value
+    };
+    xhr.send(JSON.stringify(json));
+    xhr.onload = () => {
+      console.log(xhr.status)
+      select("#render")
+        .appendChild(() =>
+          cElement("code")
             .select()
-                .action()
-                    .click((selected) => select(rectangleCollection).appendChild(()=>rectangleCreator()))
-            .select()
-            .data();
+            .innerText(xhr.responseText)
+            .data()
+        )
+    }
+
+  })
+  .select()
+  .data()
 
 select("#render")
-    .css()
-        .padding("10px")
-.select()
-.appendChild(()=>rectangleCollection)
-.appendChild(()=>button)
+  .appendChild(() => form)
+  .appendChild(() => loginButton)
+
+let requestParameter = {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    emailAddress: "mnzitshakya@gmail.com",
+    password: "password"
+  })
+};
+
+fetch(`https://api-universityportal.herokuapp.com/login`, requestParameter)
+  .then(response => response.json())
+  .then(data => console.log(data))
+
+
 
 
 

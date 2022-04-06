@@ -9,6 +9,10 @@ function select(value) {
     }
     return {
         data: () => selected,
+        innerText: function (value) {
+            selected.innerText= value
+            return this;
+        },
         action: () => action(selected),
         appendChild: function (func) {
             selected.appendChild(func())
@@ -79,7 +83,22 @@ function action(object) {
             object.addEventListener('mouseleave', () => func(object))
             return this;
         },
+        event: function(event, func){
+            object.addEventListener(event, (e) => func(object,e))
+            return this;
+        },
         select: () => select(object)
+    }
+}
+
+function cInput(type){
+    let element = cElement('input').data();
+    return {
+        type: (type) = function() {
+                element.type = type
+                return this;
+        },
+        data: () => element
     }
 }
 
@@ -89,10 +108,6 @@ function cElement(elementName){
     return {
         data: () => element,
         select: () => select(element),
-        innerText: function (value) {
-            element.innerText= value
-            return this;
-        },
         appendChild: function (func) {
             element.appendChild(func())
             return this;
