@@ -94,11 +94,16 @@ function action(object) {
 function cInput(type){
     let element = cElement('input').data();
     return {
-        type: (type) = function() {
+        type: function(type) {
                 element.type = type
                 return this;
         },
-        data: () => element
+        placeHolder: function(placeHolder){
+            element.placeholder = placeHolder
+            return this;
+        },
+        data: () => element,
+        select: () => select(element)
     }
 }
 
