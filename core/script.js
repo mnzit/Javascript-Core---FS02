@@ -1,9 +1,9 @@
 
 let emailLabel = cElement("label").select().innerText("Email: ").data();
-let emailInputBox = cInput("text").placeHolder("Enter your Email Address").select().css().color("white").backgroundColor("black").select().data();
+let emailInputBox = cInput("text").placeHolder("Enter your Email Address").select().css().width("20%").select().data();
 let br = cElement("br").data();
 let passwordLabel = cElement("label").select().innerText("Password: ").data();
-let passwordInputBox = cInput("text").placeHolder("Enter your Password").select().css().color("white").backgroundColor("black").select().data();
+let passwordInputBox = cInput("text").placeHolder("Enter your Password").select().css().width("20%").select().data();
 let code = cElement("h6").data();
 
 let form = cElement("div")
