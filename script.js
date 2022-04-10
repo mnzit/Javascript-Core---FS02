@@ -5,14 +5,13 @@ const COURSE = `${BASE_URL}/courses`;
 const USER = `${BASE_URL}/users`;
 const ROLE = `${BASE_URL}/roles`;
 
-
 let render = select("#render")
-let controller = router(render)
+
 let loginLogoutButton = !isAuthenticated() ? new routeButton("Login", "login") : new routeButton("Logout", "logout", () => sessionStorage.removeItem("token"))
 let userListButton = new routeButton("Users", "user")
 let createUserButton = new routeButton("Add User", "user-create")
 
-
+let controller = router(render)
 controller.register('login', loginComponent)
 controller.register('user', userListComponent)
 controller.register('user-detail', userDetailComponent)
@@ -37,7 +36,6 @@ function routeButton(buttonName, route, func = null) {
 
 function loginComponent() {
   let render = cElement("div");
-  let loading = cElement("img").select().src("loading.gif").css().width("25px").height("25px").select().data();
   let heading = cElement("h1").select().innerText("Login").data();
   render.appendChild(() => heading);
   let jsonDisplayer = cElement("pre").select()
@@ -52,7 +50,6 @@ function loginComponent() {
     .innerText("Login")
     .action()
     .click((selected) => {
-      select(h6).appendChild(() => loading);
       let requestParameter = {
         method: 'POST',
         headers: {
@@ -135,9 +132,7 @@ function userListComponent() {
         .addColumnDynamic("Action", "firstName", function (user, row) {
 
           let detail = cElement("button")
-            .select()
-            .innerText("View")
-            .action()
+            .select().innerText("View").action()
             .click((selected) => {
               let requestParameter = {
                 method: 'GET',
@@ -158,13 +153,10 @@ function userListComponent() {
                   }
                 })
             })
-            .select()
-            .data();
+            .select().data();
 
           let edit = cElement("button")
-            .select()
-            .innerText("Edit")
-            .action()
+            .select().innerText("Edit").action()
             .click((selected) => {
               let requestParameter = {
                 method: 'GET',
@@ -189,9 +181,7 @@ function userListComponent() {
             .data();
 
           let remove = cElement("button")
-            .select()
-            .innerText("Delete")
-            .action()
+            .select().innerText("Delete").action()
             .click((selected) => {
               let requestParameter = {
                 method: 'DELETE',
@@ -213,8 +203,7 @@ function userListComponent() {
                 })
 
             })
-            .select()
-            .data();
+            .select().data();
 
           return cElement("span")
             .appendChild(() => detail)
