@@ -1,22 +1,39 @@
 const BASE_URL = "https://api-universityportal.herokuapp.com";
+// const BASE_URL = "http://localhost:8080/UniversityPortal";
 const LOGIN = `${BASE_URL}/login`;
 const COURSE = `${BASE_URL}/courses`;
 const USER = `${BASE_URL}/users`;
 const ROLE = `${BASE_URL}/roles`;
 
-let render = select("#render")
 
+let render = select("#render")
+let controller = router(render)
 let loginLogoutButton = !isAuthenticated() ? new routeButton("Login", "login") : new routeButton("Logout", "logout", () => sessionStorage.removeItem("token"))
 let userListButton = new routeButton("Users", "user")
 let createUserButton = new routeButton("Add User", "user-create")
 
-let controller = router(render)
+
 controller.register('login', loginComponent)
 controller.register('user', userListComponent)
 controller.register('user-detail', userDetailComponent)
 controller.register("user-create", createUserComponent)
+controller.register('user-edit', userEditComponent)
 controller.register('logout', loginComponent)
 controller.onLoad(sessionStorage.getItem("token") != null ? userListComponent : loginComponent)
+
+
+function routeButton(buttonName, route, func = null) {
+  return cElement("button")
+    .select()
+    .innerText(buttonName)
+    .action()
+    .click((selected) => {
+      controller.route(route)
+      if (func != null) { func() }
+    })
+    .select()
+    .data();
+}
 
 function loginComponent() {
   let render = cElement("div");
@@ -77,12 +94,12 @@ function userDetailComponent(user) {
   let heading = cElement("h1").select().innerText("User Detail").data();
   render.appendChild(() => heading);
   render.appendChild(() => cElement("h2").select().innerText("Firstname: " + user.firstName).data())
+  render.appendChild(() => cElement("h2").select().innerText("Middlename: " + user.middleName).data())
   render.appendChild(() => cElement("h2").select().innerText("Lastname: " + user.lastName).data())
   render.appendChild(() => cElement("h2").select().innerText("Gender: " + user.genderType).data())
   render.appendChild(() => cElement("h2").select().innerText("Address: " + user.address).data())
   render.appendChild(() => cElement("h2").select().innerText("Contact no: " + user.contactNo).data())
   render.appendChild(() => cElement("h2").select().innerText("Email Address: " + user.emailAddress).data())
-  render.appendChild(() => cElement("h2").select().innerText("Role: " + user.role).data())
 
   return render.data();
 }
@@ -115,13 +132,59 @@ function userListComponent() {
         .addColumn("Contact no", "contactNo")
         .addColumn("Email Address", "emailAddress")
         .addColumn("Role", "role")
-        .addColumnDynamic("Action", "firstName", function (user) {
+        .addColumnDynamic("Action", "firstName", function (user, row) {
 
-          let edit = cElement("button")
+          let detail = cElement("button")
             .select()
             .innerText("View")
             .action()
-            .click((selected) => controller.route('user-detail', user))
+            .click((selected) => {
+              let requestParameter = {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': sessionStorage.getItem("token")
+                }
+              };
+              fetch(`${USER}/${user.id}`, requestParameter)
+                .then(response => {
+                  return response.json()
+                })
+                .then(data => {
+                  if (data.success === true) {
+                    controller.route('user-detail', data.data)
+                  } else {
+                    controller.failed(cElement("h2").select().innerText(data.message).data())
+                  }
+                })
+            })
+            .select()
+            .data();
+
+          let edit = cElement("button")
+            .select()
+            .innerText("Edit")
+            .action()
+            .click((selected) => {
+              let requestParameter = {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': sessionStorage.getItem("token")
+                }
+              };
+              fetch(`${USER}/${user.id}`, requestParameter)
+                .then(response => {
+                  return response.json()
+                })
+                .then(data => {
+                  if (data.success === true) {
+                    controller.route('user-edit', data.data)
+                  } else {
+                    controller.failed(cElement("h2").select().innerText(data.message).data())
+                  }
+                })
+            })
             .select()
             .data();
 
@@ -129,11 +192,32 @@ function userListComponent() {
             .select()
             .innerText("Delete")
             .action()
-            .click((selected) => controller.route('user-detail', user))
+            .click((selected) => {
+              let requestParameter = {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': sessionStorage.getItem("token")
+                }
+              };
+              fetch(`${USER}/${user.id}`, requestParameter)
+                .then(response => {
+                  return response.json()
+                })
+                .then(data => {
+                  if (data.success === true) {
+                    row.remove();
+                  } else {
+                    controller.failed(cElement("h2").select().innerText(data.message).data())
+                  }
+                })
+
+            })
             .select()
             .data();
 
           return cElement("span")
+            .appendChild(() => detail)
             .appendChild(() => edit)
             .appendChild(() => remove)
             .data();
@@ -221,8 +305,72 @@ function createUserComponent() {
 
   render.appendChild(() => form.data())
   render.appendChild(() => jsonDisplayer.data())
+  return render.data();
+}
 
 
+function userEditComponent(user) {
+  let render = cElement("div");
+  render.appendChild(() => loginLogoutButton)
+  render.appendChild(() => userListButton)
+  let heading = cElement("h1").select().innerText("Edit User").data();
+  render.appendChild(() => heading);
+
+  let jsonDisplayer = cElement("pre").select()
+  let form = formBuilder()
+    .addInput("Firstname", "text", "firstName", "First Name")
+    .addInput("Middlename", "text", "middleName", "Middle Name")
+    .addInput("Lastname", "text", "lastName", "Last Name")
+    .addInput("Gender", "dropdown", "genderType", "Gender", null, [{ key: "MALE", value: "Male" }, { key: "FEMALE", value: "Female" }])
+    .addInput("Address", "text", "address", "Address")
+    .addInput("Contact no", "text", "contactNo", "Contact no")
+    .addInput("Email Address", "text", "emailAddress", "Email Address")
+    .addInput("Role", "dropdown", "roleId", "Role", null, getRoles)
+    .onUpdate((formData) => jsonDisplayer.innerText(JSON.stringify(formData, null, 2)))
+    .patch(user)
+    .submitComponent((json) => {
+      return cElement("button")
+        .select()
+        .innerText("Update")
+        .action()
+        .click((selected) => {
+          let requestParameter = {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': sessionStorage.getItem("token")
+            },
+            body: JSON.stringify(json)
+          };
+          fetch(USER, requestParameter)
+            .then(response => {
+              console.log(response)
+              if (!response.ok) {
+                controller.failed(cElement("h2").select().innerText("User update failed").data())
+              } else {
+                return response.json()
+              }
+            })
+            .then(data => {
+              if (data) {
+                if (data.success === true) {
+                  controller.route('user')
+                } else {
+                  controller.failed(cElement("h2").select().innerText(data.message).data())
+                }
+              } else {
+                controller.failed(cElement("h2").select().innerText("User update failed").data())
+              }
+            }).catch(error => {
+              controller.failed(cElement("h2").select().innerText("User update failed").data())
+            })
+        })
+        .select()
+        .data()
+    })
+
+  render.appendChild(() => form.data())
+  render.appendChild(() => jsonDisplayer.data())
   return render.data();
 }
 

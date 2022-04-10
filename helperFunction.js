@@ -216,7 +216,7 @@ function tableBuilder(array = []) {
                 let bodyRow = cElement("tr").select().css().border("1px solid black").backgroundColor("#EADEDB").padding("10px").select();
                 tableHeaders.forEach(tableHeader => {
                     if (tableHeader.func) {
-                        let td = cElement('td').select().css().border("1px solid black").padding("10px").select().appendChild(() => tableHeader.func(data)).data();
+                        let td = cElement('td').select().css().border("1px solid black").padding("10px").select().appendChild(() => tableHeader.func(data, bodyRow.data())).data();
                         bodyRow.appendChild(() => td);
                     } else {
                         let td = cElement('td').select().css().border("1px solid black").padding("10px").select().innerText(data[tableHeader.key]).data();
@@ -282,10 +282,9 @@ function formBuilder() {
     let form = cElement('form');
     let table = cElement("table")
     form.appendChild(() => table.data())
-
+    let onUpdateCallBack = null;
     let formJson = {}
     const formMap = new Map();
-    let onUpdate = null;
     let formBody = function () {
         this.type = null;
         this.component = null,
@@ -306,15 +305,14 @@ function formBuilder() {
                     dropdown().then(response => {
                         response.forEach(e => {
                             select.appendChild(() => cElement("option").select().value(e.key).innerText(e.value).data())
-
                         })
+                        this.onUpdate(onUpdateCallBack)
                     })
                 } else {
                     dropdown.forEach(e => {
                         select.appendChild(() => cElement("option").select().value(e.key).innerText(e.value).data())
                     })
                 }
-
                 inputTd.appendChild(() => select.data())
                 body.component = select.data();
             } else {
@@ -347,36 +345,35 @@ function formBuilder() {
             return formJson;
         },
         patch: function (json) {
-            for (let key in json) {
-                let component = formMap.get(key).component;
-                component.value = json[key];
-            }
-            if (onUpdate) {
-                onUpdate(this.json())
+            formJson = json
+            for (let key in formJson) {
+                if (formMap.get(key)) {
+                    let component = formMap.get(key).component;
+                    component.value = formJson[key];
+                }
             }
             return this;
         },
 
         onUpdate: function (onUpdateCb) {
-            onUpdate = onUpdateCb;
-            if (onUpdate) {
-                formMap.forEach((v, k) => {
-                    let component = v.component;
-                    formJson[k] = null;
-                    onUpdate(formJson);
-                    select(component).action().input((input, event) => {
-                        if (input.type === "checkbox") {
-                            formJson[k] = input.checked;
-                        } else {
-                            formJson[k] = input.value;
-                        }
-
-                        onUpdate(formJson);
-
-                    })
-
+            onUpdateCallBack = onUpdateCb;
+            formMap.forEach((v, k) => {
+                let component = v.component;
+                if (component.type === "checkbox") {
+                    formJson[k] = component.checked;
+                } else {
+                    formJson[k] = component.value;
+                }
+                select(component).action().input((input, event) => {
+                    if (input.type === "checkbox") {
+                        formJson[k] = input.checked;
+                    } else {
+                        formJson[k] = input.value;
+                    }
+                    onUpdateCb(formJson);
                 })
-            }
+            })
+            onUpdateCb(formJson);
             return this;
         },
 
@@ -387,15 +384,3 @@ function formBuilder() {
     }
 }
 
-function routeButton(buttonName, route, func = null) {
-    return cElement("button")
-        .select()
-        .innerText(buttonName)
-        .action()
-        .click((selected) => {
-            controller.route(route)
-            if (func != null) { func() }
-        })
-        .select()
-        .data();
-}
