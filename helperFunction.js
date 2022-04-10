@@ -384,3 +384,15 @@ function formBuilder() {
     }
 }
 
+function routeButton(buttonName, route, func = null, controller) {
+    return cElement("button")
+      .select()
+      .innerText(buttonName)
+      .action()
+      .click((selected) => {
+        controller.route(route)
+        if (func != null) { func() }
+      })
+      .select()
+      .data();
+  }

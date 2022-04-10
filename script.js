@@ -1,3 +1,10 @@
+/**
+ * TODO: Separation of Concern
+ */
+
+/**
+ * Server paths
+ */
 const BASE_URL = "https://api-universityportal.herokuapp.com";
 // const BASE_URL = "http://localhost:8080/UniversityPortal";
 const LOGIN = `${BASE_URL}/login`;
@@ -5,12 +12,15 @@ const COURSE = `${BASE_URL}/courses`;
 const USER = `${BASE_URL}/users`;
 const ROLE = `${BASE_URL}/roles`;
 
+/**
+ * Main render component
+ */
 let render = select("#render")
 
-let loginLogoutButton = !isAuthenticated() ? new routeButton("Login", "login") : new routeButton("Logout", "logout", () => sessionStorage.removeItem("token"))
-let userListButton = new routeButton("Users", "user")
-let createUserButton = new routeButton("Add User", "user-create")
 
+/**
+ * Controller and their mappings
+ */
 let controller = router(render)
 controller.register('login', loginComponent)
 controller.register('user', userListComponent)
@@ -21,19 +31,10 @@ controller.register('logout', loginComponent)
 controller.onLoad(sessionStorage.getItem("token") != null ? userListComponent : loginComponent)
 
 
-function routeButton(buttonName, route, func = null) {
-  return cElement("button")
-    .select()
-    .innerText(buttonName)
-    .action()
-    .click((selected) => {
-      controller.route(route)
-      if (func != null) { func() }
-    })
-    .select()
-    .data();
-}
-
+/**
+ * 
+ * User Login Component
+ */
 function loginComponent() {
   let render = cElement("div");
   let heading = cElement("h1").select().innerText("Login").data();
@@ -83,11 +84,14 @@ function loginComponent() {
   return render.data();
 }
 
-
+/**
+ * 
+ * User Detail Component
+ */
 function userDetailComponent(user) {
   let render = cElement("div");
-  render.appendChild(() => userListButton)
-  render.appendChild(() => loginLogoutButton)
+  render.appendChild(() => new routeButton("Users", "user", null, controller))
+  render.appendChild(() => !isAuthenticated() ? new routeButton("Login", "login", null, controller) : new routeButton("Logout", "logout", () => sessionStorage.removeItem("token"), controller))
   let heading = cElement("h1").select().innerText("User Detail").data();
   render.appendChild(() => heading);
   render.appendChild(() => cElement("h2").select().innerText("Firstname: " + user.firstName).data())
@@ -101,11 +105,14 @@ function userDetailComponent(user) {
   return render.data();
 }
 
-
+/**
+ * 
+ * User List Component
+ */
 function userListComponent() {
   let render = cElement("div");
-  render.appendChild(() => loginLogoutButton)
-  render.appendChild(() => createUserButton)
+  render.appendChild(() => new routeButton("Add User", "user-create", null, controller))
+  render.appendChild(() => !isAuthenticated() ? new routeButton("Login", "login", null, controller) : new routeButton("Logout", "logout", () => sessionStorage.removeItem("token"), controller))
   let heading = cElement("h1").select().innerText("Users").data();
   render.appendChild(() => heading);
 
@@ -219,6 +226,10 @@ function userListComponent() {
   return render.data();
 }
 
+/**
+ * 
+ * Fetch Roles and Map them to dropdown format
+ */
 function getRoles() {
   let requestParameter = {
     method: 'GET',
@@ -242,10 +253,14 @@ function getRoles() {
     })
 }
 
+/**
+ * 
+ * User Create Component
+ */
 function createUserComponent() {
   let render = cElement("div");
-  render.appendChild(() => loginLogoutButton)
-  render.appendChild(() => userListButton)
+  render.appendChild(() => new routeButton("Users", "user", null, controller))
+  render.appendChild(() => !isAuthenticated() ? new routeButton("Login", "login", null, controller) : new routeButton("Logout", "logout", () => sessionStorage.removeItem("token"), controller))
   let heading = cElement("h1").select().innerText("Create User").data();
   render.appendChild(() => heading);
 
@@ -297,11 +312,15 @@ function createUserComponent() {
   return render.data();
 }
 
-
+/**
+ * 
+ * User Edit Component
+ */
 function userEditComponent(user) {
   let render = cElement("div");
-  render.appendChild(() => loginLogoutButton)
-  render.appendChild(() => userListButton)
+  render.appendChild(() => new routeButton("Users", "user", null, controller))
+  render.appendChild(() => !isAuthenticated() ? new routeButton("Login", "login", null, controller) : new routeButton("Logout", "logout", () => sessionStorage.removeItem("token"), controller))
+
   let heading = cElement("h1").select().innerText("Edit User").data();
   render.appendChild(() => heading);
 
@@ -363,10 +382,11 @@ function userEditComponent(user) {
   return render.data();
 }
 
+
+/**
+ * 
+ * Authentication check
+ */
 function isAuthenticated() {
   return sessionStorage.getItem("token") != null;
 }
-
-
-
-
