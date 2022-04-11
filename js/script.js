@@ -43,7 +43,7 @@ function loginComponent() {
   let form = formBuilder()
     .addInput("Email", "text", "emailAddress", "Email Address")
     .addInput("Password", "password", "password", "Password")
-    .onUpdate((json) => jsonDisplayer.innerText(JSON.stringify(json, null, 2)))
+    // .onUpdate((json) => jsonDisplayer.innerText(JSON.stringify(json, null, 2)))
   render.appendChild(() => form.data())
 
   let loginButton = cElement("button")
@@ -243,7 +243,7 @@ function getRoles() {
     .then(response => response.json())
     .then(response => {
       let rolesData = [];
-      response.data.roles.forEach((role) => {
+      response?.data?.roles?.forEach((role) => {
         rolesData.push({
           key: role.id,
           value: role.name
@@ -276,7 +276,7 @@ function createUserComponent() {
     .addInput("Send Email", "checkbox", "sendEmail", "Send Email")
     .addInput("Generate Password", "checkbox", "isPasswordGenerated", "Generate Password")
     .addInput("Role", "dropdown", "roleId", "Role", null, getRoles)
-    .onUpdate((formData) => jsonDisplayer.innerText(JSON.stringify(formData, null, 2)))
+    // .onUpdate((formData) => jsonDisplayer.innerText(JSON.stringify(formData, null, 2)))
     .submitComponent((json) => {
       return cElement("button")
         .select()
@@ -334,8 +334,8 @@ function userEditComponent(user) {
     .addInput("Contact no", "text", "contactNo", "Contact no")
     .addInput("Email Address", "text", "emailAddress", "Email Address")
     .addInput("Role", "dropdown", "roleId", "Role", null, getRoles)
-    .onUpdate((formData) => jsonDisplayer.innerText(JSON.stringify(formData, null, 2)))
     .patch(user)
+    // .onUpdate((formData) => jsonDisplayer.innerText(JSON.stringify(formData, null, 2)))
     .submitComponent((json) => {
       return cElement("button")
         .select()

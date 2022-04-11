@@ -181,14 +181,6 @@ function cElement(elementName) {
     }
 }
 
-
-function camelCaseToTitleCase(text) {
-
-    const result = text.replace(/([A-Z])/g, " $1");
-    const finalResult = result.charAt(0).toUpperCase() + result.slice(1);
-    return finalResult;
-}
-
 function tableBuilder(array = []) {
     let tableHeaders = [];
     return {
@@ -284,6 +276,7 @@ function formBuilder() {
     form.appendChild(() => table.data())
     let onUpdateCallBack = null;
     let formJson = {}
+    let patch = false;
     const formMap = new Map();
     let formBody = function () {
         this.type = null;
@@ -306,7 +299,13 @@ function formBuilder() {
                         response.forEach(e => {
                             select.appendChild(() => cElement("option").select().value(e.key).innerText(e.value).data())
                         })
+                        // if (onUpdateCallBack) {
                         this.onUpdate(onUpdateCallBack)
+                        // }
+                        if (patch) {
+                            console.log(formJson)
+                            this.patch(formJson);
+                        }
                     })
                 } else {
                     dropdown.forEach(e => {
@@ -345,6 +344,7 @@ function formBuilder() {
             return formJson;
         },
         patch: function (json) {
+            patch = true;
             formJson = json
             for (let key in formJson) {
                 if (formMap.get(key)) {
@@ -359,10 +359,13 @@ function formBuilder() {
             onUpdateCallBack = onUpdateCb;
             formMap.forEach((v, k) => {
                 let component = v.component;
+
                 if (component.type === "checkbox") {
                     formJson[k] = component.checked;
                 } else {
-                    formJson[k] = component.value;
+                    if (formJson[k] == null) {
+                        formJson[k] = component.value;
+                    }
                 }
                 select(component).action().input((input, event) => {
                     if (input.type === "checkbox") {
@@ -370,10 +373,14 @@ function formBuilder() {
                     } else {
                         formJson[k] = input.value;
                     }
-                    onUpdateCb(formJson);
+                    if (onUpdateCb != null) {
+                        onUpdateCb(formJson);
+                    }
                 })
             })
-            onUpdateCb(formJson);
+            if (onUpdateCb != null) {
+                onUpdateCb(formJson);
+            }
             return this;
         },
 
@@ -386,13 +393,13 @@ function formBuilder() {
 
 function routeButton(buttonName, route, func = null, controller) {
     return cElement("button")
-      .select()
-      .innerText(buttonName)
-      .action()
-      .click((selected) => {
-        controller.route(route)
-        if (func != null) { func() }
-      })
-      .select()
-      .data();
-  }
+        .select()
+        .innerText(buttonName)
+        .action()
+        .click((selected) => {
+            controller.route(route)
+            if (func != null) { func() }
+        })
+        .select()
+        .data();
+}
