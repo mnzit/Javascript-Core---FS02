@@ -1,15 +1,12 @@
 import {cElement} from "./element";
-
+let instance = null;
+let render = null;
 export function Router(renderElement = null) {
     const routes = new Map();
-    let instance = null;
-    let render = null;
+
 
     function instanceCreator() {
         return {
-            setRender: function renderElement(element){
-                render = element;
-            },
             onLoad: function (component) {
                 render.child(() => component())
             },
@@ -33,7 +30,11 @@ export function Router(renderElement = null) {
                 } else {
                     render.child(() => new cElement("h1").select().innerText("404 Not Found"))
                 }
+            },
+            getRender: function(){
+                return render;
             }
+
         }
     }
 
@@ -42,8 +43,9 @@ export function Router(renderElement = null) {
             getInstance: function () {
                 if (instance === null) {
                     console.log("Singleton instance of Router")
+                    render = renderElement;
                     instance = new instanceCreator();
-                    instance.setRender(renderElement)
+                    console.log(instance.getRender())
                 }
                 return instance;
             }

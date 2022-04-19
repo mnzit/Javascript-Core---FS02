@@ -7,7 +7,7 @@ import {UserCreateComponent} from "./components/users/create";
 import {UserEditComponent} from "./components/users/edit";
 
 export const RENDER = Select("#render")
-export const router = Router(RENDER)
+export const router = new Router(RENDER)
     .getInstance()
     .register('login',  LoginComponent)
     .register('user-list',  UserListComponent)
