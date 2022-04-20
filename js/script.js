@@ -5,8 +5,8 @@
 /**
  * Server paths
  */
-const BASE_URL = "https://api-universityportal.herokuapp.com";
-// const BASE_URL = "http://localhost:8080/UniversityPortal";
+// const BASE_URL = "https://api-universityportal.herokuapp.com";
+const BASE_URL = "http://localhost:8080/UniversityPortal";
 const LOGIN = `${BASE_URL}/login`;
 const COURSE = `${BASE_URL}/courses`;
 const USER = `${BASE_URL}/users`;
@@ -242,14 +242,19 @@ function getRoles() {
   return fetch(ROLE, requestParameter)
     .then(response => response.json())
     .then(response => {
-      let rolesData = [];
-      response?.data?.roles?.forEach((role) => {
-        rolesData.push({
-          key: role.id,
-          value: role.name
+      if(response?.success){
+        let rolesData = [];
+        response?.data?.roles?.forEach((role) => {
+          rolesData.push({
+            key: role.id,
+            value: role.name
+          })
         })
-      })
-      return rolesData;
+        console.log(rolesData)
+        return rolesData;
+      }else{
+        controller.route('user')
+      }
     })
 }
 
@@ -266,7 +271,7 @@ function createUserComponent() {
 
   let jsonDisplayer = cElement("pre").select()
   let form = formBuilder()
-    .addInput("Firstname", "text", "firstName", "First Name", { "notNull": true, "length": 10 })
+    .addInput("Firstname", "text", "firstName", "First Name")
     .addInput("Middlename", "text", "middleName", "Middle Name")
     .addInput("Lastname", "text", "lastName", "Last Name")
     .addInput("Gender", "dropdown", "genderType", "Gender", null, [{ key: "MALE", value: "Male" }, { key: "FEMALE", value: "Female" }])
@@ -276,8 +281,8 @@ function createUserComponent() {
     .addInput("Send Email", "checkbox", "sendEmail", "Send Email")
     .addInput("Generate Password", "checkbox", "isPasswordGenerated", "Generate Password")
     .addInput("Role", "dropdown", "roleId", "Role", null, getRoles)
-    // .onUpdate((formData) => jsonDisplayer.innerText(JSON.stringify(formData, null, 2)))
-    .submitComponent((json) => {
+    .onUpdate((formData) => jsonDisplayer.innerText(JSON.stringify(formData, null, 2)))
+    .submitComponent(() => {
       return cElement("button")
         .select()
         .innerText("Save")
@@ -289,7 +294,7 @@ function createUserComponent() {
               'Content-Type': 'application/json',
               'Authorization': sessionStorage.getItem("token")
             },
-            body: JSON.stringify(json)
+            body: JSON.stringify(form.json())
           };
           fetch(USER, requestParameter)
             .then(response => {
@@ -336,7 +341,7 @@ function userEditComponent(user) {
     .addInput("Role", "dropdown", "roleId", "Role", null, getRoles)
     .patch(user)
     // .onUpdate((formData) => jsonDisplayer.innerText(JSON.stringify(formData, null, 2)))
-    .submitComponent((json) => {
+    .submitComponent(() => {
       return cElement("button")
         .select()
         .innerText("Update")
@@ -348,7 +353,7 @@ function userEditComponent(user) {
               'Content-Type': 'application/json',
               'Authorization': sessionStorage.getItem("token")
             },
-            body: JSON.stringify(json)
+            body: JSON.stringify(form.json())
           };
           fetch(USER, requestParameter)
             .then(response => {

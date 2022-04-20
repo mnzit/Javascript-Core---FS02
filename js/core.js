@@ -1,4 +1,3 @@
-
 function select(value) {
     let selected = null;
     if (value instanceof HTMLElement) {
@@ -281,8 +280,8 @@ function formBuilder() {
     let formBody = function () {
         this.type = null;
         this.component = null,
-            this.validation = null,
-            this.disabled = null
+        this.validation = null,
+        this.disabled = null
     }
 
     return {
@@ -299,11 +298,7 @@ function formBuilder() {
                         response.forEach(e => {
                             select.appendChild(() => cElement("option").select().value(e.key).innerText(e.value).data())
                         })
-                        // if (onUpdateCallBack) {
-                        this.onUpdate(onUpdateCallBack)
-                        // }
                         if (patch) {
-                            console.log(formJson)
                             this.patch(formJson);
                         }
                     })
@@ -348,14 +343,17 @@ function formBuilder() {
             formJson = json
             for (let key in formJson) {
                 if (formMap.get(key)) {
+                    console.log(`Setting value ${ formJson[key] } for component ${formMap.get(key).component}`)
                     let component = formMap.get(key).component;
                     component.value = formJson[key];
                 }
             }
+            console.log("JSON::::"+JSON.stringify(formJson))
             return this;
         },
 
         onUpdate: function (onUpdateCb) {
+            console.log(formMap)
             onUpdateCallBack = onUpdateCb;
             formMap.forEach((v, k) => {
                 let component = v.component;
@@ -373,6 +371,7 @@ function formBuilder() {
                     } else {
                         formJson[k] = input.value;
                     }
+                    console.log(formMap)
                     if (onUpdateCb != null) {
                         onUpdateCb(formJson);
                     }
@@ -385,7 +384,7 @@ function formBuilder() {
         },
 
         submitComponent: function (callBack) {
-            form.appendChild(() => callBack(formJson));
+            form.appendChild(() => callBack());
             return this;
         }
     }
