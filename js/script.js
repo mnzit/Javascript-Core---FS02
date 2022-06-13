@@ -5,8 +5,8 @@
 /**
  * Server paths
  */
-// const BASE_URL = "https://api-universityportal.herokuapp.com";
-const BASE_URL = "http://localhost:8080/UniversityPortal";
+const BASE_URL = "https://api-universityportal.herokuapp.com";
+// const BASE_URL = "http://localhost:8080/UniversityPortal";
 const LOGIN = `${BASE_URL}/login`;
 const COURSE = `${BASE_URL}/courses`;
 const USER = `${BASE_URL}/users`;
