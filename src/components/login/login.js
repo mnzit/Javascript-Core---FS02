@@ -2,7 +2,7 @@ import {cElement} from "../../core/element";
 import {Component} from "../../core/component";
 import {FormBuilder} from "../../core/form";
 import {login} from "../../server/request/auth/authRequest";
-import {Router} from "../../core/router";
+import {Router, RouterInstance} from "../../core/router";
 
 export function LoginComponent() {
     return new Component(render => {
@@ -21,9 +21,9 @@ export function LoginComponent() {
                         login(json)
                             .then(data => {
                                 if (data.success === true) {
-                                    Router().getInstance().route("user-list")
+                                    RouterInstance.route("user-list")
                                 } else {
-                                    Router().getInstance().failed(cElement("h2").select().innerText(data.message))
+                                    RouterInstance.failed(cElement("h2").select().innerText(data.message))
                                 }
                             });
                     })

@@ -27,6 +27,7 @@ export function TableBuilder(array = []) {
                 let bodyRow = new cElement("tr").select().css().border("1px solid black").backgroundColor("#EADEDB").padding("10px").select();
                 tableHeaders.forEach(tableHeader => {
                     if (tableHeader.func) {
+                        console.log("Error")
                         let td = new cElement('td').select().css().border("1px solid black").padding("10px").select().appendChild(() => tableHeader.func(data, bodyRow.data()));
                         bodyRow.appendChild(() => td);
                     } else {
@@ -34,10 +35,10 @@ export function TableBuilder(array = []) {
                         bodyRow.appendChild(() => td);
                     }
                 })
-                tbody.appendChild(() => bodyRow.data())
+                tbody.appendChild(() => bodyRow)
             })
 
-            table.appendChild(() => tbody.data())
+            table.appendChild(() => tbody)
             return table.data();
         }
     }

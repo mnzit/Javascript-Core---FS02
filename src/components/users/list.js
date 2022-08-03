@@ -33,12 +33,14 @@ export function UserListComponent() {
     });
 }
 
-function action(user, row) {
-    return (user, row) =>
-        new cElement("span")
+function action() {
+    return (user, row) => {
+        return new cElement("span")
             .appendChild(editButton(user.id))
             .appendChild(detailButton(user.id))
             .appendChild(removeButton(user.id, row))
+            .select()
+    }
 }
 
 function editButton(id) {
@@ -68,15 +70,20 @@ function detailButton(id) {
 }
 
 function removeButton(id, row) {
-    return () => new cElement("button").select().innerText("Delete").action().click((selected) => {
-        remove(id)
-            .then(data => {
-                if (data.success === true) {
-                    row.remove();
-                } else {
-                    router.failed(new cElement("h2").select().innerText(data.message))
-                }
-            })
+    return () => new cElement("button")
+        .select()
+        .innerText("Delete")
+        .action()
+        .click((selected) => {
+            remove(id)
+                .then(data => {
+                    if (data.success === true) {
+                        row.remove();
+                    } else {
+                        router.failed(new cElement("h2").select().innerText(data.message))
+                    }
+                })
 
-    }).select();
+        })
+        .select();
 }

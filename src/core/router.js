@@ -1,58 +1,45 @@
 import {cElement} from "./element";
-let instance = null;
-let render = null;
-export function Router(renderElement = null) {
+
+function Router() {
+    let render;
     const routes = new Map();
+    return {
+        setRender: function(value){
+            render = value;
+            return this;
+        },
+        onLoad: function (component) {
+            render.child(() => component())
+        },
+        register: function (route, component) {
+            routes.set(route, component)
+            return this;
+        },
+        notFound: function () {
+            render.child(() => cElement("h1").select().innerText("404 Not Found"))
+        },
+        failed: function (component) {
+            render.child(() => component.data())
+        },
+        route: function (path, data = null) {
+            let containsRoute = routes.has(path);
 
-
-    function instanceCreator() {
-        return {
-            onLoad: function (component) {
-                render.child(() => component())
-            },
-            register: function (route, component) {
-                routes.set(route, component)
-                return this;
-            },
-            failed: function (component) {
-                render.child(() => component.data())
-            },
-            route: function (path, data = null) {
-                let containsRoute = routes.has(path);
-
-                if (containsRoute) {
-                    if (data) {
-                        render.child(() => routes.get(path)(data))
-                    } else {
-                        render.child(() => routes.get(path)())
-                    }
-
+            if (containsRoute) {
+                if (data) {
+                    render.child(() => routes.get(path)(data))
                 } else {
-                    render.child(() => new cElement("h1").select().innerText("404 Not Found"))
+                    render.child(() => routes.get(path)())
                 }
-            },
-            getRender: function(){
-                return render;
-            }
 
+            } else {
+                render.child(() => new cElement("h1").select().innerText("404 Not Found"))
+            }
         }
     }
-
-    return new function () {
-        return {
-            getInstance: function () {
-                if (instance === null) {
-                    console.log("Singleton instance of Router")
-                    render = renderElement;
-                    instance = new instanceCreator();
-                    console.log(instance.getRender())
-                }
-                return instance;
-            }
-        }
-
-    };
 }
+
+export const RouterInstance = new Router();
+
 
 export function RouteButton(buttonName, route, func = null, controller) {
     return new cElement("button")
